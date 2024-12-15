@@ -73,7 +73,7 @@ jobs:
     - name: List dir
       run: ls pmd-bin-7.8.0/bin/
     - name: Run static analyzer
-      run: $HOME/pmd-bin-7.8.0/bin/pmd check -d src/main/java/com/real_property_system_api/real_property_system/ -R rulesets/java/quickstart.xml -f text
+      run: pmd-bin-7.8.0/bin/pmd check -d src/main/java/com/real_property_system_api/real_property_system/ -R rulesets/java/quickstart.xml -f text
 
 
   dependency-submission:
