@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class JwtResponse 
 {
-    @JsonProperty("error")
+    @JsonProperty("code")
     private int error;
 
     @JsonProperty("access")
