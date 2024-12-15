@@ -18,7 +18,7 @@ jobs:
 
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read, write
 
     steps:
     - uses: actions/checkout@v4
@@ -49,6 +49,8 @@ jobs:
 
   check_style_project:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read, write
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-java@v4
