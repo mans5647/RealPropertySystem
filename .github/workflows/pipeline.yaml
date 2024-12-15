@@ -61,14 +61,14 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+    - name: Install pwd
+      run: cd $HOME
+      run: wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.8.0/pmd-dist-7.8.0-bin.zip
+      run: unzip pmd-dist-7.8.0-bin.zip
+      run: alias pmd="$HOME/pmd-bin-7.8.0/bin/pmd"
     
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
-
-    - name: Build with Gradle
-      run: ./gradlew -b ci.gradle package
+    - name: Run static analyzer
+      run: pmd check -d src/main/java/com/real_property_system_api/real_property_system/ -R rulesets/java/quickstart.xml -f text
 
 
   dependency-submission:
