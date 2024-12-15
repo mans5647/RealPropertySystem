@@ -70,7 +70,8 @@ jobs:
     
     - name: Alias
       run: alias pmd="$HOME/pmd-bin-7.8.0/bin/pmd"
-    
+    - name: List dir
+      run: ls
     - name: Run static analyzer
       run: $HOME/pmd-bin-7.8.0/bin/pmd check -d src/main/java/com/real_property_system_api/real_property_system/ -R rulesets/java/quickstart.xml -f text
 
