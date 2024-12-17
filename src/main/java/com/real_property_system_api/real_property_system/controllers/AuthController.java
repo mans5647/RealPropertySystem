@@ -11,7 +11,6 @@ import com.real_property_system_api.real_property_system.models.UserRole;
 import com.real_property_system_api.real_property_system.responses.AuthResponse;
 import com.real_property_system_api.real_property_system.responses.Codes;
 import com.real_property_system_api.real_property_system.responses.FieldErrorsResponse;
-import com.real_property_system_api.real_property_system.responses.GenericMessage;
 import com.real_property_system_api.real_property_system.responses.JwtResponse;
 import com.real_property_system_api.real_property_system.services.JsonConverter;
 import com.real_property_system_api.real_property_system.services.JwtManager;
@@ -57,18 +56,18 @@ public class AuthController
     final Gson gson = new Gson();
 
     @PostMapping("/login")
-    public ResponseEntity<String> DoLoginIntoPropertySystem(@RequestBody LoginBody loginRequest, final HttpServletResponse response)
+    public ResponseEntity<String> doLogin(@RequestBody LoginBody loginRequest, final HttpServletResponse response)
     {
         var userHolder = userService.getUserByLogin(loginRequest.getLogin());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         if (!userHolder.isPresent()) 
         {
-            AuthResponse no_such_login = new AuthResponse();
-            no_such_login.authCode = Codes.AuthLoginNotFound;
-            no_such_login.message = "Пользователь не найден";
+            AuthResponse noSuchLogin = new AuthResponse();
+            noSuchLogin.authCode = Codes.AuthLoginNotFound;
+            noSuchLogin.message = "Пользователь не найден";
             
-            Pair<Boolean, String> values = JsonConverter.doSaveConvert(no_such_login);
+            Pair<Boolean, String> values = JsonConverter.doSaveConvert(noSuchLogin);
             return new ResponseEntity<>(values.getFirst() ? values.getSecond() : null, headers, values.getFirst() ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -103,7 +102,7 @@ public class AuthController
     }
 
     @PostMapping("/create_account")
-    public ResponseEntity<String> DoRegisterIntoPropertySystem(@Valid @RequestBody RegisterBodyWithRole registerBodyWithRole)
+    public ResponseEntity<String> doRegister(@Valid @RequestBody RegisterBodyWithRole registerBodyWithRole)
     {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
@@ -120,13 +119,13 @@ public class AuthController
 
 
 
-            ArrayList<PrettyError> _convenientErrorList = new ArrayList<>();
+            ArrayList<PrettyError> convenientErrorList = new ArrayList<>();
             for (FieldError error : errors.getFieldErrors())
             {
-                _convenientErrorList.add(new PrettyError(error.getField(), error.getCode(), error.getDefaultMessage()));
+                convenientErrorList.add(new PrettyError(error.getField(), error.getCode(), error.getDefaultMessage()));
             }
 
-            fieldErrorsResponse.setErrors(_convenientErrorList);
+            fieldErrorsResponse.setErrors(convenientErrorList);
 
             var data = JsonConverter.doSaveConvert(fieldErrorsResponse);
             return new ResponseEntity<>(data.getFirst() ? data.getSecond() : null, headers, HttpStatus.BAD_REQUEST);
@@ -140,11 +139,11 @@ public class AuthController
         HttpStatus createdStatus = HttpStatus.CREATED;
         if (userService.isUserExists(login))
         {
-            AuthResponse error_exists = new AuthResponse();
-            error_exists.authCode = Codes.RegisterFailedAccountAlreadyExists;
-            error_exists.message = "Такой пользователь уже существует";
+            AuthResponse errorExists = new AuthResponse();
+            errorExists.authCode = Codes.RegisterFailedAccountAlreadyExists;
+            errorExists.message = "Такой пользователь уже существует";
 
-            var data = JsonConverter.doSaveConvert(error_exists);
+            var data = JsonConverter.doSaveConvert(errorExists);
 
             String json = data.getFirst() ? data.getSecond() : null;
 
