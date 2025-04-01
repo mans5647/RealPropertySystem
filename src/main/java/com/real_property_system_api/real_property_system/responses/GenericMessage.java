@@ -6,7 +6,7 @@ public class GenericMessage
 {
 
     @JsonProperty("code")
-    public int code;
+    public int  code;
 
     @JsonProperty("message")
     public String message;

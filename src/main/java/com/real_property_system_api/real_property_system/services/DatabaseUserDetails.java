@@ -17,11 +17,11 @@ public class DatabaseUserDetails implements UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException 
     {
-        var user_container = userRepository.findByLogin(login);
+        var userContainer = userRepository.findByLogin(login);
         
-        if (!user_container.isPresent()) throw new UsernameNotFoundException("Пользователь не найден");
+        if (!userContainer.isPresent()) throw new UsernameNotFoundException("Пользователь не найден");
 
-        var userValue = user_container.get();
+        var userValue = userContainer.get();
 
         return User.builder()
             .username(userValue.getUsername())

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.PropertySource;
 
 import com.real_property_system_api.real_property_system.CredentialsStorage;
 import com.real_property_system_api.real_property_system.services.JwtManager;
+import com.real_property_system_api.real_property_system.services.UserService;
 
 @Configuration
 @PropertySource("classpath:application.properties")

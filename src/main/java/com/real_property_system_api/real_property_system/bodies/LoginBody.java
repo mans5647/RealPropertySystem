@@ -11,12 +11,6 @@ public class LoginBody
     private String password;
 
 
-    public LoginBody()
-    {
-
-    }
-
-
     public String getLogin()
     {
         return login;

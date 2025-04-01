@@ -1,7 +1,8 @@
 package com.real_property_system_api.real_property_system.configs;
 
+import java.net.http.HttpRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,13 +13,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import com.real_property_system_api.real_property_system.JwtFilter;
+import com.real_property_system_api.real_property_system.bodies.AccessDeniedHandlerImpl;
 import com.real_property_system_api.real_property_system.services.AuthProvider;
 import com.real_property_system_api.real_property_system.services.DatabaseUserDetails;
 import com.real_property_system_api.real_property_system.services.JwtManager;
+import com.real_property_system_api.real_property_system.services.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -34,21 +36,45 @@ public class SecurityConfig
         http
             .authorizeHttpRequests(x ->
             x
+            .requestMatchers("/actuator/**").permitAll()
             .requestMatchers(HttpMethod.POST,"/api/public/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll()
-            .requestMatchers(HttpMethod.GET,"/api/resources/**").hasAnyRole("ADMIN")
+
+            .requestMatchers(HttpMethod.POST, "/api/resources/users/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/resources/users/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.GET,"/api/resources/users/**").hasAnyRole("ADMIN", "CLIENT", "REALTOR", "MANAGER")
+            .requestMatchers(HttpMethod.PUT, "/api/resources/users/**").hasAnyRole("ADMIN", "CLIENT", "REALTOR", "MANAGER")
+
+            .requestMatchers(HttpMethod.POST, "/api/resources/passports/**").hasAnyRole("ADMIN", "CLIENT", "MANAGER")
+            .requestMatchers(HttpMethod.PUT, "/api/resources/passports/**").hasAnyRole("ADMIN", "CLIENT", "MANAGER")
+            .requestMatchers(HttpMethod.GET, "/api/resources/passports/**").hasAnyRole("ADMIN", "CLIENT", "MANAGER")
+            
+            .requestMatchers("/api/resources/land_plots/**").hasAnyRole("ADMIN", "CLIENT", "MANAGER")
+
             .anyRequest().authenticated()
             
             );
+
+
+        http.exceptionHandling(x -> 
+        {
+            x.accessDeniedHandler(new AccessDeniedHandlerImpl());
+        });
+
 
         http.exceptionHandling(x -> 
         x.authenticationEntryPoint((res, re, q) ->
         {
             re.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            re.getOutputStream().println("No auth!");
         }
-        ));
+        )
+        
+        );
 
-        http.addFilterAt(new JwtFilter(jwtManager, authenticationManager()), AuthorizationFilter.class);
+        
+
+        http.addFilterAt(new JwtFilter(jwtManager, authenticationManager(), userService), AuthorizationFilter.class);
         http.csrf(x ->
         x.disable());
 
@@ -82,13 +108,7 @@ public class SecurityConfig
     @Autowired
     private JwtManager jwtManager;
 
-
-    
-    public JwtFilter jwtFilter()
-    {
-        return new JwtFilter(jwtManager, authenticationManager());
-    }
-
-
+    @Autowired
+    private UserService userService;
 
 }

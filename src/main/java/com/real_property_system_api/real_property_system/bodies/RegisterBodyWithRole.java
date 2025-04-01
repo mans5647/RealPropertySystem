@@ -22,14 +22,10 @@ public class RegisterBodyWithRole
     @NotNull
     private String password;
     
-    @JsonProperty("role")
-    @NotNull(message = "Роль не должна быть пустой")
-    private String RoleSuffix;
+    @JsonProperty("code")
+    @NotNull(message = "Код организации не должен быть пустым")
+    private String Code;
 
-    public RegisterBodyWithRole()
-    {
-        
-    }
 
     public String getLogin() {
         return login;
@@ -47,12 +43,12 @@ public class RegisterBodyWithRole
         this.password = password;
     }
 
-    public String getRoleSuffix() {
-        return RoleSuffix;
+    public String getCode() {
+        return Code;
     }
 
-    public void setRoleSuffix(String roleSuffix) {
-        RoleSuffix = roleSuffix;
+    public void setCode(String Code) {
+        this.Code = Code;
     }
 
 

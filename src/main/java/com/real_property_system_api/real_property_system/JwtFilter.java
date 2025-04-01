@@ -1,7 +1,6 @@
 package com.real_property_system_api.real_property_system;
 
 import java.io.IOException;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,11 +9,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.google.gson.Gson;
 import com.real_property_system_api.real_property_system.responses.AuthResponse;
 import com.real_property_system_api.real_property_system.responses.Codes;
 import com.real_property_system_api.real_property_system.responses.JwtError;
+import com.real_property_system_api.real_property_system.services.JsonConverter;
 import com.real_property_system_api.real_property_system.services.JwtManager;
+import com.real_property_system_api.real_property_system.services.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,12 +30,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private AuthenticationManager authenticationManager;
 
-    final Gson gson = new Gson();
 
+    private UserService userService;
 
-    public JwtFilter(JwtManager jwtManager, AuthenticationManager authenticationManager) {
+    public JwtFilter(JwtManager jwtManager, AuthenticationManager authenticationManager, UserService userService) {
         this.jwtManager = jwtManager;
         this.authenticationManager = authenticationManager;
+        this.userService = userService;
     }
 
 
@@ -43,7 +44,12 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException 
     {
         String path = request.getServletPath();
-        if (path.startsWith("/api/public") || path.startsWith("/api/auth"))
+        
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        if (path.startsWith("/api/public") || path.startsWith("/api/auth")
+            || path.startsWith("/actuator"))
         {
             filterChain.doFilter(request, response);
             return;
@@ -57,18 +63,19 @@ public class JwtFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
             authResponse.authCode = Codes.AuthErrorNoHeader;
-            authResponse.message = "Provide \"Authorization\" header or check if it has \"Bearer\" type";
+            authResponse.message = "Provide 'Authorization' header or check if it has 'Bearer' type";
 
-            response.getOutputStream().println(gson.toJson(authResponse));
+            var convertResult = JsonConverter.doSaveConvert(authResponse);
+            response.getWriter().println(convertResult.getSecond());
             return;
         }
 
         final String token = authorizationHeader.substring(authorizationHeader.indexOf(' ') + 1);
-        var validation_error = jwtManager.checkForValidity(token);
+        var validationError = jwtManager.checkForValidity(token);
 
         String authMessageExpl = null;
         Integer authCode = Codes.NoError;
-        switch (validation_error)
+        switch (validationError)
         {
             case JwtError.Expired:
                 authCode = Codes.AuthTokenExpired;
@@ -92,15 +99,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 var decodedJWT = JwtManager.getDecodedJwt(token);
 
-                String username = JwtManager.getLoginFromToken(decodedJWT);
-                String password = JwtManager.getPasswordFromToken(decodedJWT);
-
+                String login = JwtManager.getLoginFromToken(decodedJWT);
                 
-                var authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+                String password = userService.getUserByLogin(login).get().getPassword();
+                
+                var authRequest = UsernamePasswordAuthenticationToken.unauthenticated(login, password);
 
-                var m_AuthResponse = authenticationManager.authenticate(authRequest);
+                var auth = authenticationManager.authenticate(authRequest);
 
-                SecurityContextHolder.getContext().setAuthentication(m_AuthResponse);
+                SecurityContextHolder.getContext().setAuthentication(auth);
                 hasLoginError = false;
                 filterChain.doFilter(request, response);
             }
@@ -120,14 +127,18 @@ public class JwtFilter extends OncePerRequestFilter {
             if (hasLoginError)
             {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getOutputStream().println(gson.toJson(authResponse));
+
+                var convertResult = JsonConverter.doSaveConvert(authResponse);
+
+                response.getWriter().println(convertResult.getSecond());
             }
 
         }
         else 
         {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getOutputStream().print(gson.toJson(authResponse));
+            var convertResult = JsonConverter.doSaveConvert(authResponse);
+            response.getWriter().println(convertResult.getSecond());
         }
 
     }

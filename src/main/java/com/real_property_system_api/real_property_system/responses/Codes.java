@@ -2,6 +2,7 @@ package com.real_property_system_api.real_property_system.responses;
 
 public final class Codes 
 {
+    public static final int AccessDeniedErr = -4;
     public static final int FieldErrors = -3;
     public static final int ServiceError = -2;
     public static final int InvalidObject = -1;
@@ -13,5 +14,6 @@ public final class Codes
     public static final int AuthPasswordIncorrect = 5;
     public static final int AuthTokenExpired = 6;
     public static final int RegisterFailedAccountAlreadyExists = 7;
-
+    public static final int InvalidCode = 8;
+    public static final int ValueNotPresent = 9;
 }

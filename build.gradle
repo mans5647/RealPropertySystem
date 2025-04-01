@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.real_property_system_api'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 java {
 	toolchain {
@@ -28,6 +28,21 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server:3.3.3'
 	// https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
 	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.7.3'
+	// https://mvnrepository.com/artifact/com.opencsv/opencsv
+	implementation 'com.opencsv:opencsv:5.9'
+	
+	
+
+	// https://mvnrepository.com/artifact/org.projectlombok/lombok
+	// https://mvnrepository.com/artifact/org.projectlombok/lombok
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+	implementation platform('io.micrometer:micrometer-bom:1.14.4')
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	//implementation 'io.micrometer:micrometer-registry-influx:1.12.2'
 
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

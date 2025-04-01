@@ -44,5 +44,10 @@ public class JwtResponse
     }
     
     
+    public static JwtResponse Invalid()
+    {
+        return new JwtResponse(Codes.ValueNotPresent, null, null);
+    }
 
+    
 }

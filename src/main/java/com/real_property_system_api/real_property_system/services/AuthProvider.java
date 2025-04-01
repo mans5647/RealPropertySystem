@@ -19,18 +19,17 @@ import com.real_property_system_api.real_property_system.repos.UserRepository;
 public class AuthProvider implements AuthenticationProvider 
 {
 
-    @Autowired
-    private UserRepository userRepository;
 
     private DatabaseUserDetails databaseUserDetails;
 
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException 
     {
         var userDetails = databaseUserDetails.loadUserByUsername(authentication.getName());
-        boolean matches = authentication.getCredentials().toString().equals(userDetails.getPassword());
+        boolean matches = userDetails.getPassword().equals(authentication.getCredentials().toString());
         
         if (!matches) throw new BadCredentialsException("Неправильный пароль");
 

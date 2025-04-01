@@ -34,7 +34,6 @@ public class JwtManager
         String token = JWT.create()
             .withIssuer(issuer)
             .withClaim("login", user.getLogin())
-            .withClaim("password", user.getPassword())
             .withClaim("role", user.getUserRole().getSuffix())
             .withExpiresAt(Instant.now().plusSeconds(Minutes * 60l))
             .withIssuedAt(Instant.now())
@@ -43,11 +42,12 @@ public class JwtManager
         return token;
     }
 
-    public String generateRefreshToken(Long Minutes)
+    public String generateRefreshToken(User user ,Long Minutes)
     {
         Algorithm algorithm = Algorithm.HMAC256(credentialsStorage.getSecret());
         String token = JWT.create()
             .withIssuer(issuer)
+            .withClaim("login", user.getLogin())
             .withExpiresAt(Instant.now().plusSeconds(Minutes * 60l))
             .withIssuedAt(Instant.now())
             .sign(algorithm);
