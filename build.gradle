@@ -42,7 +42,7 @@ dependencies {
 	implementation platform('io.micrometer:micrometer-bom:1.14.4')
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
-	//implementation 'io.micrometer:micrometer-registry-influx:1.12.2'
+	implementation 'io.micrometer:micrometer-registry-influx:1.12.2'
 
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
